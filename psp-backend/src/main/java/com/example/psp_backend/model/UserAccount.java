@@ -3,6 +3,17 @@ package com.example.psp_backend.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+
 @Entity
 @Table(name = "user_account")
 @Getter
@@ -11,7 +22,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 
-public class UserAccount {
+public class UserAccount implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,4 +50,40 @@ public class UserAccount {
 
     @Column(name = "mfa_enabled", nullable = false)
     private boolean mfaEnabled;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(
+                new SimpleGrantedAuthority("ROLE_" + role.name())
+        );
+    }
+
+    public String getPassword() {
+        return passwordHash;
+    }
+
+    public void setPassword(String password) {
+        Timestamp now = new Timestamp(new Date().getTime());
+        //this.setLastPasswordResetDate(now);
+        this.passwordHash = password;
+    }
+
+
+    @JsonIgnore
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @JsonIgnore
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
 }

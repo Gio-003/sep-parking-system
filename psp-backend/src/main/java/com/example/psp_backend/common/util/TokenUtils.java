@@ -1,6 +1,6 @@
-package com.example.psp_backend.util;
+package com.example.psp_backend.common.util;
 
-import com.example.webapp.stakeholders.model.User;
+import com.example.psp_backend.model.UserAccount;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -62,11 +62,12 @@ public class TokenUtils {
      * @param username Korisničko ime korisnika kojem se token izdaje
      * @return JWT token
      */
-    public String generateToken(String username) {
+    public String generateToken(String username, String role) {
         return Jwts.builder()
                 .setIssuer(APP_NAME)
                 .setSubject(username)
                 .setAudience(generateAudience())
+                .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(generateExpirationDate())
                 .signWith(getSigningKey(), SIGNATURE_ALGORITHM).compact();
@@ -241,14 +242,14 @@ public class TokenUtils {
      * @return Informacija da li je token validan ili ne.
      */
     public Boolean validateToken(String token, UserDetails userDetails) {
-        User user = (User) userDetails;
+        UserAccount user = (UserAccount) userDetails;
         final String username = getUsernameFromToken(token);
         final Date created = getIssuedAtDateFromToken(token);
 
         // Token je validan kada:
         return (username != null // korisnicko ime nije null
-                && username.equals(userDetails.getUsername()) // korisnicko ime iz tokena se podudara sa korisnickom imenom koje pise u bazi
-                && !isCreatedBeforeLastPasswordReset(created, user.getLastPasswordResetDate())); // nakon kreiranja tokena korisnik nije menjao svoju lozinku
+                && username.equals(userDetails.getUsername())); // korisnicko ime iz tokena se podudara sa korisnickom imenom koje pise u bazi
+                //&& !isCreatedBeforeLastPasswordReset(created, user.getLastPasswordResetDate())); // nakon kreiranja tokena korisnik nije menjao svoju lozinku
     }
 
     /**

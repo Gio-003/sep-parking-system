@@ -24,7 +24,7 @@ public class AdminSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... arg){
-        if(users.findByUsername(username).isEmpty()) {
+        if(!users.existsByUsername(username)) {
             users.save(UserAccount.builder()
                     .username(username)
                     .passwordHash(encoder.encode(password))
