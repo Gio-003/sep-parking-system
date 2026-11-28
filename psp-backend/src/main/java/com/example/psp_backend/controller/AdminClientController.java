@@ -1,9 +1,7 @@
 package com.example.psp_backend.controller;
 
-import com.example.psp_backend.dto.ClientSummary;
-import com.example.psp_backend.dto.RegisterClientRequest;
-import com.example.psp_backend.dto.RegisterClientResponse;
-import com.example.psp_backend.dto.UpdateClientStatusRequest;
+import com.example.psp_backend.dto.*;
+import com.example.psp_backend.service.ClientPaymentMethodService;
 import com.example.psp_backend.service.ClientService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +18,7 @@ import java.util.List;
 public class AdminClientController {
 
     private final ClientService clientService;
+    private final ClientPaymentMethodService paymentMethodService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -35,5 +34,10 @@ public class AdminClientController {
     @PatchMapping("{id}/status")
     public ClientSummary setStatus(@PathVariable Long id, @Valid @RequestBody UpdateClientStatusRequest request){
         return clientService.setActive(id, request.active());
+    }
+
+    @GetMapping("/{id}/payment-methods")
+    public List<PaymentMethodView> clientPaymentMethods(@PathVariable Long id) {
+        return paymentMethodService.listForClient(id);
     }
 }
